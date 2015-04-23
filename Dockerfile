@@ -14,12 +14,14 @@ RUN apt-get update && apt-get install -y git wget build-essential python-dev ca-
 # jovyan is our user
 RUN useradd -m -s /bin/bash jovyan
 
+ENV CONDA_DIR /home/jovyan/.conda/bin
+
 # Install conda for the jovyan user only (this is a single user container)
-RUN echo 'export PATH=/home/jovyan/conda/bin:$PATH' > /etc/profile.d/conda.sh && \
+RUN echo 'export PATH=$CONDA_DIR:$PATH' > /etc/profile.d/conda.sh && \
     wget --quiet https://repo.continuum.io/miniconda/Miniconda3-3.9.1-Linux-x86_64.sh && \
-    /bin/bash /Miniconda3-3.9.1-Linux-x86_64.sh -b -p /home/jovyan/conda && \
+    /bin/bash /Miniconda3-3.9.1-Linux-x86_64.sh -b -p /home/jovyan/.conda && \
     rm Miniconda3-3.9.1-Linux-x86_64.sh && \
-    /home/jovyan/conda/bin/conda install --yes conda==3.10.1
+    $CONDA_DIR/conda install --yes conda==3.10.1
 
 RUN chown -R jovyan:jovyan /home/jovyan
 
@@ -29,7 +31,7 @@ USER jovyan
 ENV HOME /home/jovyan
 ENV SHELL /bin/bash
 ENV USER jovyan
-ENV PATH /home/jovyan/conda/bin:$PATH
+ENV PATH $CONDA_DIR:$PATH
 
 RUN conda install ipython-notebook
 
